@@ -1,21 +1,21 @@
 mod animal;
 mod animal_individual;
 mod brain;
+mod color;
 mod eye;
 mod food;
 mod statistics;
 mod world;
-mod color;
 
 pub use self::{
     animal::*,
     animal_individual::*,
     brain::*,
+    color::*,
     eye::*,
     food::*,
     statistics::*,
     world::*,
-    color::*,
 };
 
 use lib_genetic_algorithm as ga;
@@ -32,6 +32,7 @@ const SPEED_ACCEL: f32 = 0.2;
 const ROTATION_ACCEL: f32 = FRAC_PI_2 / 3.0;
 
 const GENERATION_LENGTH: usize = 2500;
+const TICKS_PER_HUNGER: usize = 100;
 
 pub struct Simulation {
     world: World,
@@ -66,8 +67,26 @@ impl Simulation {
         &self.world
     }
 
+    pub fn process_hunger(&mut self) {
+        if self.age % TICKS_PER_HUNGER == 0 {
+            for animal in &mut self.world.animals {
+                if !animal.alive {
+                    continue;
+                }
+
+                if animal.satiation == 0 {
+                    animal.alive = false;
+                    animal.speed = 0.0;
+                } else {
+                    animal.satiation -= 1;
+                }
+            }
+        }
+    }
+
     pub fn step(&mut self, rng: &mut dyn RngCore) -> Option<Statistics> {
         self.process_collisions(rng);
+        self.process_hunger();
         self.process_brains();
         self.process_movements();
 
@@ -90,6 +109,9 @@ impl Simulation {
 
     fn process_collisions(&mut self, rng: &mut dyn RngCore) {
         for animal in &mut self.world.animals {
+            if !animal.alive {
+                continue;
+            }
             for food in &mut self.world.foods {
                 let distance = na::distance(&animal.position, &food.position);
 
@@ -103,6 +125,9 @@ impl Simulation {
 
     fn process_brains(&mut self) {
         for animal in &mut self.world.animals {
+            if !animal.alive {
+                continue;
+            }
             let vision =
                 animal
                     .eye
@@ -120,6 +145,9 @@ impl Simulation {
 
     fn process_movements(&mut self) {
         for animal in &mut self.world.animals {
+            if !animal.alive {
+                continue;
+            }
             animal.position += animal.rotation * na::Vector2::new(0.0, animal.speed);
 
             animal.position.x = na::wrap(animal.position.x, 0.0, 1.0);
@@ -129,6 +157,13 @@ impl Simulation {
 
     fn evolve(&mut self, rng: &mut dyn RngCore) -> Statistics {
         self.age = 0;
+
+        let num_dead = self
+            .world
+            .animals
+            .iter()
+            .filter(|animal| !animal.alive)
+            .count() as u32; // assuming there is <4 billion dead animals
 
         let current_population: Vec<_> = self
             .world
@@ -151,9 +186,11 @@ impl Simulation {
         let generation = self.generation;
         self.generation += 1;
 
+
         Statistics {
             generation,
             ga: stats,
+            num_dead,
         }
     }
 }

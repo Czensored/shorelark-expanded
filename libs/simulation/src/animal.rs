@@ -9,6 +9,7 @@ pub struct Animal {
     pub(crate) brain: Brain,
     pub(crate) satiation: usize,
     pub(crate) color: Rgba,
+    pub alive: bool,
 }
 
 impl Animal {
@@ -35,8 +36,9 @@ impl Animal {
             speed: 0.002,
             eye,
             brain,
-            satiation: 0,
+            satiation: 5,
             color,
+            alive: true,
         }
     }
 

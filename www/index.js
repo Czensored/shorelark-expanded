@@ -5,8 +5,8 @@ function cssColorFromPackedRGBA(packed) {
   const u = packed >>> 0; // ensure unsigned
   const r = (u >>> 24) & 255;
   const g = (u >>> 16) & 255;
-  const b = (u >>> 8)  & 255;
-  const a =  u         & 255;
+  const b = (u >>> 8) & 255;
+  const a = u & 255;
   return `rgba(${r},${g},${b},${a / 255})`;
 }
 
@@ -45,7 +45,7 @@ CanvasRenderingContext2D.prototype.drawCircle =
 
     this.arc(x, y, radius, 0, 2.0 * Math.PI);
 
-    this.fillStyle = 'rgb(0, 255, 128)';
+    this.fillStyle = 'rgb(255, 255, 255)';
     this.fill();
   };
 
@@ -93,6 +93,9 @@ function redraw() {
   }
 
   for (const animal of world.animals) {
+    if (!animal.alive) {
+      continue;
+    }
     ctxt.fillStyle = cssColorFromPackedRGBA(animal.color);
     ctxt.drawTriangle(
       animal.x * viewportWidth,

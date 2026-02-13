@@ -6,15 +6,15 @@ pub struct Brain {
 }
 
 impl Brain {
-    pub fn random(rng: &mut dyn RngCore, eye: &Eye) -> Self {
+    pub fn random(rng: &mut dyn RngCore, input_neurons: usize) -> Self {
         Self {
-            nn: nn::Network::random(rng, &Self::topology(eye)),
+            nn: nn::Network::random(rng, &Self::topology(input_neurons)),
         }
     }
 
-    pub(crate) fn from_chromosome(chromosome: ga::Chromosome, eye: &Eye) -> Self {
+    pub(crate) fn from_chromosome(chromosome: ga::Chromosome, input_neurons: usize) -> Self {
         Self {
-            nn: nn::Network::from_weights(&Self::topology(eye), chromosome),
+            nn: nn::Network::from_weights(&Self::topology(input_neurons), chromosome),
         }
     }
 
@@ -27,13 +27,11 @@ impl Brain {
         rgba_from_bytes(&bytes)
     }
 
-    fn topology(eye: &Eye) -> [nn::LayerTopology; 3] {
+    fn topology(input_neurons: usize) -> [nn::LayerTopology; 3] {
         [
+            nn::LayerTopology { neurons: input_neurons },
             nn::LayerTopology {
-                neurons: eye.cells(),
-            },
-            nn::LayerTopology {
-                neurons: 2 * eye.cells(),
+                neurons: 2 * input_neurons,
             },
             nn::LayerTopology { neurons: 2 },
         ]

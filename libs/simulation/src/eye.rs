@@ -44,9 +44,19 @@ impl Eye {
         rotation: na::Rotation2<f32>,
         foods: &[Food],
     ) -> Vec<f32> {
+        let food_positions = foods.iter().map(|food| food.position);
+        self.process_vision_positions(position, rotation, food_positions)
+    }
+
+    pub fn process_vision_positions(
+        &self,
+        position: na::Point2<f32>,
+        rotation: na::Rotation2<f32>,
+        points: impl IntoIterator<Item = na::Point2<f32>>,
+    ) -> Vec<f32> {
         let mut cells = vec![0.0; self.cells];
-        for food in foods {
-            let vec = food.position - position;
+        for point in points {
+            let vec = point - position;
             let dist = vec.norm();
             if dist >= self.fov_range {
                 continue;

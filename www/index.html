@@ -6,26 +6,208 @@
   <title>Learn to fly!</title>
 </head>
 <style>
+  :root {
+    --bg: #1f2639;
+    --panel: rgba(10, 14, 25, 0.82);
+    --border: rgba(255, 255, 255, 0.14);
+    --text: #e8edf7;
+    --muted: #96a3bd;
+    --prey: #50aaff;
+    --predator: #ff5a5a;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
   body {
-    background: #1f2639;
+    margin: 0;
+    padding: 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+  }
+
+  .app {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .sim-wrap {
+    position: relative;
+  }
+
+  #viewport {
+    display: block;
+    border: 1px solid var(--border);
+  }
+
+  #statsPanel {
+    width: 320px;
+    height: 800px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #statsPanel h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+  }
+
+  .generation {
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+
+  .label {
+    color: var(--muted);
+    margin-right: 6px;
+  }
+
+  .species {
+    padding: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+
+  .species h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+
+  .prey {
+    color: var(--prey);
+  }
+
+  .predator {
+    color: var(--predator);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    margin: 3px 0;
+    font-size: 14px;
+  }
+
+  #statsHistory {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 13px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  #statsHistory li {
+    margin: 4px 0;
+    list-style: none;
+    margin-left: -18px;
+  }
+
+  .history-entry {
+    display: grid;
+    grid-template-columns: auto auto 5.5ch 5.5ch 2.5ch auto 3ch;
+    align-items: center;
+    column-gap: 3px;
+    font-size: 13px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-entry .num {
+    text-align: right;
+  }
+
+  .history-gap {
+    width: 2.5ch;
+  }
+
+  .history-prey {
+    color: var(--prey);
+    font-weight: 600;
+  }
+
+  .history-pred {
+    color: var(--predator);
+    font-weight: 600;
+  }
+
+  .train-controls {
+    margin-top: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0 0;
+    color: var(--text);
+  }
+
+  .history-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  @media (max-width: 1200px) {
+    .app {
+      flex-direction: column;
+    }
+
+    #statsPanel {
+      width: 800px;
+      height: 800px;
+    }
   }
 </style>
 
 <body>
-  <canvas id="viewport" width="800" height="800"></canvas>
-  <div id="controls" style="
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  color: white;
-  background: rgba(0, 0, 0, 0.5);
-  width: fit-content;
-">
-    <label for="fastForwardCount">Generations:</label>
-    <input type="number" id="fastForwardCount" value="1" min="1" style="width: 60px;">
-    <button id="train">Train</button>
+  <div class="app">
+    <div class="sim-wrap">
+      <canvas id="viewport" width="800" height="800"></canvas>
+    </div>
+
+    <aside id="statsPanel">
+      <h2>Generation Stats</h2>
+      <div class="generation"><span class="label">Generation:</span><span id="genValue">-</span></div>
+
+      <section class="species">
+        <h3 class="prey">Prey</h3>
+        <div class="row"><span>Min fitness</span><span id="preyMin">-</span></div>
+        <div class="row"><span>Max fitness</span><span id="preyMax">-</span></div>
+        <div class="row"><span>Avg fitness</span><span id="preyAvg">-</span></div>
+        <div class="row"><span>Deaths</span><span id="preyDead">-</span></div>
+      </section>
+
+      <section class="species">
+        <h3 class="predator">Predators</h3>
+        <div class="row"><span>Min fitness</span><span id="predMin">-</span></div>
+        <div class="row"><span>Max fitness</span><span id="predMax">-</span></div>
+        <div class="row"><span>Avg fitness</span><span id="predAvg">-</span></div>
+      </section>
+
+      <div class="history-section">
+        <div class="label">Recent generations</div>
+        <ul id="statsHistory"></ul>
+      </div>
+
+      <div id="controls" class="train-controls">
+        <label for="fastForwardCount">Quick Train</label>
+        <input type="number" id="fastForwardCount" value="1" min="1" style="width: 60px;">
+        <button id="train">Run</button>
+      </div>
+    </aside>
   </div>
+
   <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
   <script src="./bootstrap.js"></script>
 </body>

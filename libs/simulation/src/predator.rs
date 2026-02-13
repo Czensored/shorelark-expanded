@@ -1,14 +1,14 @@
 use crate::*;
 
-const PREY_COLOR: Rgba = Rgba {
-    r: 80,
-    g: 170,
-    b: 255,
+const PREDATOR_COLOR: Rgba = Rgba {
+    r: 255,
+    g: 90,
+    b: 90,
     a: 255,
 };
 
 #[derive(Debug)]
-pub struct Animal {
+pub struct Predator {
     pub(crate) position: na::Point2<f32>,
     pub(crate) rotation: na::Rotation2<f32>,
     pub(crate) speed: f32,
@@ -19,10 +19,10 @@ pub struct Animal {
     pub alive: bool,
 }
 
-impl Animal {
+impl Predator {
     pub fn random(rng: &mut dyn RngCore) -> Self {
         let eye = Eye::default();
-        let brain = Brain::random(rng, 2 * eye.cells());
+        let brain = Brain::random(rng, eye.cells());
 
         Self::new(eye, brain, rng)
     }
@@ -39,18 +39,18 @@ impl Animal {
         Self {
             position: rng.r#gen(),
             rotation: rng.r#gen(),
-            speed: 0.0014,
+            speed: 0.0011,
             eye,
             brain,
             satiation: 0,
-            color: PREY_COLOR,
+            color: PREDATOR_COLOR,
             alive: true,
         }
     }
 
     pub(crate) fn from_chromosome(chromosome: ga::Chromosome, rng: &mut dyn RngCore) -> Self {
         let eye = Eye::default();
-        let brain = Brain::from_chromosome(chromosome, 2 * eye.cells());
+        let brain = Brain::from_chromosome(chromosome, eye.cells());
 
         Self::new(eye, brain, rng)
     }

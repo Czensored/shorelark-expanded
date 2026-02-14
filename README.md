@@ -1,6 +1,12 @@
 # Shorelark Genetic Algorithm
 
-Followed a [guide](https://pwy.io/posts/learning-to-fly-pt1/) for this implementation.
+An interactive evolution sandbox: a genetic algorithm + feed-forward neural network controlling “birds” that learn to find food under configurable selection pressures. Built in Rust (WASM) with a TypeScript front-end for real-time visualization and experimentation.
+
+## Live Demo
+
+Try it here: [Shorelark Predator-Prey Simulation](https://isaacsalzman.com/shorelark-expanded/)
+
+![Shorelark demo](./docs/shorelark-demo.gif)
 
 ## Problem Statement
 
@@ -26,3 +32,8 @@ npm run start
 ## Explanation
 
 This project implements a genetic algorithm in combination with a [Feedforward neural network](https://en.wikipedia.org/wiki/Feedforward_neural_network) (FFNN). The network receives input from each bird’s visual sensors: the bird’s field of view is divided into discrete “eye cells,” and each cell provides a numeric value representing the distance to the nearest food source. These inputs are processed by the network to produce two outputs: the bird’s forward/backward acceleration and its rotational acceleration.
+
+## Acknoledgements
+
+This project was initially inspired by and prototyped from Patryk Wychowaniec’s “Learning to Fly” article/series:
+- Guide: <https://pwy.io/posts/learning-to-fly-pt1/>

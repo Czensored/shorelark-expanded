@@ -39,6 +39,50 @@ def add_improvement_plot(ax, df: pd.DataFrame, value_col: str, label: str, color
     add_mean_and_ci(ax, grouped, label, color)
 
 
+def add_decile_percentile_band(
+    ax, df: pd.DataFrame, value_col: str, title: str, cmap_name: str = "viridis"
+):
+    quantile_levels = np.linspace(0.0, 1.0, 11)
+    grouped = df.groupby("generation")[value_col]
+    quantiles = grouped.quantile(quantile_levels).unstack(level=1).sort_index()
+
+    x = quantiles.index.to_numpy()
+    cmap = plt.get_cmap(cmap_name, 10)
+
+    shown_labels = {0: "P0-10", 4: "P40-50", 9: "P90-100"}
+    for i in range(10):
+        low = quantiles.iloc[:, i].to_numpy()
+        high = quantiles.iloc[:, i + 1].to_numpy()
+        label = shown_labels.get(i, "_nolegend_")
+        ax.fill_between(
+            x,
+            low,
+            high,
+            color=cmap(i),
+            alpha=0.6,
+            linewidth=0.4,
+            edgecolor="white",
+            label=label,
+        )
+
+    # Overlay upper-tail line to show extreme-run behavior without adding more bands.
+    p99 = grouped.quantile(0.99).sort_index().to_numpy()
+    ax.plot(
+        x,
+        p99,
+        color="#111111",
+        linewidth=1.8,
+        label="P99",
+        zorder=5,
+    )
+
+    ax.set_title(title)
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Prey average fitness")
+    ax.grid(alpha=0.25)
+    ax.legend(fontsize=8, loc="lower right", title="Percentile bands")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Visualize batch genetic algorithm results."
@@ -93,31 +137,24 @@ def main():
     ax1.legend()
     ax1.grid(alpha=0.25)
 
-    add_improvement_plot(ax2, df, "prey_avg_fitness", "Prey improvement", "#1f77b4")
-    add_improvement_plot(
-        ax2, df, "predator_avg_fitness", "Predator improvement", "#d62728"
+    add_decile_percentile_band(
+        ax2,
+        df,
+        "prey_avg_fitness",
+        title="Prey Fitness Percentile Bands",
+        cmap_name="tab10",
     )
-    ax2.axhline(0.0, color="black", linewidth=1.0, alpha=0.5)
-    ax2.set_title("Improvement per Generation (95% CI)")
-    ax2.set_xlabel("Generation")
-    ax2.set_ylabel("Delta avg fitness")
-    ax2.legend()
-    ax2.grid(alpha=0.25)
 
-    final_gen = df["generation"].max()
-    final_df = df[df["generation"] == final_gen]
-    box_data = [
-        final_df["prey_avg_fitness"].to_numpy(),
-        final_df["predator_avg_fitness"].to_numpy(),
-    ]
-    box = ax3.boxplot(box_data, tick_labels=["Prey", "Predator"], patch_artist=True)
-    box["boxes"][0].set_facecolor("#1f77b4")
-    box["boxes"][0].set_alpha(0.4)
-    box["boxes"][1].set_facecolor("#d62728")
-    box["boxes"][1].set_alpha(0.4)
-    ax3.set_title(f"Final Generation Distribution (gen={int(final_gen)})")
-    ax3.set_ylabel("Average fitness")
-    ax3.grid(alpha=0.25, axis="y")
+    add_improvement_plot(ax3, df, "prey_avg_fitness", "Prey improvement", "#1f77b4")
+    add_improvement_plot(
+        ax3, df, "predator_avg_fitness", "Predator improvement", "#d62728"
+    )
+    ax3.axhline(0.0, color="black", linewidth=1.0, alpha=0.5)
+    ax3.set_title("Improvement per Generation (95% CI)")
+    ax3.set_xlabel("Generation")
+    ax3.set_ylabel("Delta avg fitness")
+    ax3.legend()
+    ax3.grid(alpha=0.25)
 
     phase = (
         df.groupby("generation", as_index=False)[

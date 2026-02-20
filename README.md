@@ -46,11 +46,11 @@ python3 scripts/plot_batch_results.py results.csv --out batch_trends.png
 
 These plots summarize results from 500 independent training runs, each executed for 300 generations. Under the current parameters, 122 of 500 runs (24.40%) ended with complete prey die-out.
 
-![Batch Training Trends](./docs/batch_trends_big.png)
+![Batch Training Trends](./docs/batch_trends.png)
 
 - `Mean Fitness vs Generation (95% CI)`: compares fitness trends and stability across runs.
+- `Prey Fitness Percentile Bands (Deciles + P99)`: shows the full prey fitness distribution over generations as 10 percentile bands, with a 99th percentile overlay for upper-tail behavior.
 - `Improvement per Generation (95% CI)`: often shows diminishing gains after early generations.
-- `Final Generation Distribution`: summarizes end-state distribution for prey vs predators.
 - `Prey-Predator Tradeoff Phase Plot`: maps co-evolution over time by plotting mean prey fitness against mean predator fitness.
 
 ## Explanation

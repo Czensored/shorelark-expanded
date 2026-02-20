@@ -134,7 +134,7 @@ impl Simulation {
                 if distance <= 0.012 {
                     animal.alive = false;
                     animal.speed = 0.0;
-                    predator.satiation += 1;
+                    predator.satiation += 3;
                 }
             }
         }
@@ -244,7 +244,12 @@ impl Simulation {
             .filter(|predator| !predator.alive)
             .count() as u32;
 
-        let alive_prey: Vec<_> = self.world.animals.iter().filter(|animal| animal.alive).collect();
+        let alive_prey: Vec<_> = self
+            .world
+            .animals
+            .iter()
+            .filter(|animal| animal.alive)
+            .collect();
         let prey_population: Vec<_> = if alive_prey.is_empty() {
             Vec::new()
         } else {

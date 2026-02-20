@@ -4,9 +4,9 @@ An interactive evolution sandbox: a genetic algorithm + feed-forward neural netw
 
 ## Live Demo
 
-Try it here: [Shorelark Predator-Prey Simulation](https://isaacsalzman.com/shorelark-expanded/)
+Try it here: [Shorelark Predator-Prey Simulation](https://isaacsalzman.com/projects/shorelark-expanded/demo/)
 
-![Shorelark demo](./docs/shorelark-demo.gif)
+![Shorelark Expanded demo](./docs/shorelark-demo.gif)
 
 ## Problem Statement
 
@@ -29,11 +29,33 @@ npm install
 npm run start
 ```
 
+## Batch Experiments (Backend)
+
+```bash
+# Run 50 simulations for 100 generations and write CSV
+cargo run -p simulation-batch --release -- --runs 50 --gens 100 --out results.csv
+```
+
+```bash
+# Plot trends from CSV
+python3 -m pip install pandas matplotlib numpy
+python3 scripts/plot_batch_results.py results.csv --out batch_trends.png
+```
+
+### Plotting Improvement
+
+![Batch Training Trends](./docs/batch_trends.png)
+
+- `Mean Fitness vs Generation (95% CI)`: compares fitness trends and stability across runs.
+- `Improvement per Generation (95% CI)`: often shows diminishing gains after early generations.
+- `Final Generation Distribution`: summarizes end-state distribution for prey vs predators.
+- `Prey-Predator Tradeoff Phase Plot`: maps co-evolution over time by plotting mean prey fitness against mean predator fitness.
+
 ## Explanation
 
-This project implements a genetic algorithm in combination with a [Feedforward neural network](https://en.wikipedia.org/wiki/Feedforward_neural_network) (FFNN). The network receives input from each bird’s visual sensors: the bird’s field of view is divided into discrete “eye cells,” and each cell provides a numeric value representing the distance to the nearest food source. These inputs are processed by the network to produce two outputs: the bird’s forward/backward acceleration and its rotational acceleration.
+This project implements a genetic algorithm in combination with a [Feed-forward neural network](https://en.wikipedia.org/wiki/Feedforward_neural_network) (FFNN). The network receives input from each bird’s visual sensors: the bird’s field of view is divided into discrete “eye cells,” and each cell provides a numeric value representing the distance to the nearest food source. These inputs are processed by the network to produce two outputs: the bird’s forward/backward acceleration and its rotational acceleration.
 
-## Acknoledgements
+## Acknowledgements
 
 This project was initially inspired by and prototyped from Patryk Wychowaniec’s “Learning to Fly” article/series:
 - Guide: <https://pwy.io/posts/learning-to-fly-pt1/>

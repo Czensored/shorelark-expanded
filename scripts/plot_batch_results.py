@@ -50,6 +50,12 @@ def main():
         default=Path("batch_trends.png"),
         help="Output PNG path (default: batch_trends.png).",
     )
+    parser.add_argument(
+        "--prey-count",
+        type=int,
+        default=40,
+        help="Total prey population used in simulation (default: 40).",
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.csv)
@@ -58,6 +64,7 @@ def main():
         "generation",
         "prey_avg_fitness",
         "predator_avg_fitness",
+        "prey_dead",
     }
     missing = sorted(required - set(df.columns))
     if missing:
@@ -149,7 +156,17 @@ def main():
     fig.tight_layout()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out, dpi=180)
+
+    run_dieout = (df.groupby("run")["prey_dead"].max() >= args.prey_count)
+    dieout_runs = int(run_dieout.sum())
+    total_runs = int(run_dieout.size)
+    dieout_runs_pct = (100.0 * dieout_runs / total_runs) if total_runs else 0.0
+
     print(f"Wrote plot: {args.out}")
+    print(
+        "Runs with at least one full prey die-out: "
+        f"{dieout_runs}/{total_runs} ({dieout_runs_pct:.2f}%)"
+    )
 
 
 if __name__ == "__main__":

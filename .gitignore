@@ -25,6 +25,7 @@ out
 
 # Python
 .venv
+*.pyc
 
 # OS/system
 .DS_Store

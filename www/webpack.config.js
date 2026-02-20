@@ -15,7 +15,6 @@ module.exports = {
     static: {
       directory: __dirname,
     },
-    open: true,
     compress: true,
     port: 8080
   }

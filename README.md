@@ -44,7 +44,9 @@ python3 scripts/plot_batch_results.py results.csv --out batch_trends.png
 
 ### Plotting Improvement
 
-![Batch Training Trends](./docs/batch_trends.png)
+These plots summarize results from 500 independent training runs, each executed for 300 generations. Under the current parameters, 122 of 500 runs (24.40%) ended with complete prey die-out.
+
+![Batch Training Trends](./docs/batch_trends_big.png)
 
 - `Mean Fitness vs Generation (95% CI)`: compares fitness trends and stability across runs.
 - `Improvement per Generation (95% CI)`: often shows diminishing gains after early generations.

@@ -3,6 +3,7 @@ use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
 use std::env;
+use std::fmt::Write as FmtWrite;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::process;
@@ -98,17 +99,18 @@ fn run_batch(cfg: &Config) -> std::io::Result<()> {
         "run,generation,prey_min_fitness,prey_max_fitness,prey_avg_fitness,prey_dead,predator_min_fitness,predator_max_fitness,predator_avg_fitness"
     )?;
 
-    let per_run_lines: Vec<Vec<String>> = (0..cfg.runs)
+    let per_run_lines: Vec<String> = (0..cfg.runs)
         .into_par_iter()
         .map(|run| {
             let run_seed = cfg.seed.wrapping_add(run as u64);
             let mut rng = ChaCha8Rng::seed_from_u64(run_seed);
             let mut sim = Simulation::random(&mut rng);
 
-            let mut lines = Vec::with_capacity(cfg.generations as usize);
+            let mut lines = String::with_capacity((cfg.generations as usize) * 120);
             for _ in 0..cfg.generations {
                 let stats = sim.fast_forward(&mut rng);
-                lines.push(format!(
+                writeln!(
+                    lines,
                     "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.6},{:.6}",
                     run,
                     stats.generation,
@@ -119,7 +121,8 @@ fn run_batch(cfg: &Config) -> std::io::Result<()> {
                     stats.predator_ga.min_fitness,
                     stats.predator_ga.max_fitness,
                     stats.predator_ga.avg_fitness,
-                ));
+                )
+                .expect("writing CSV row into String should not fail");
             }
 
             lines
@@ -127,9 +130,7 @@ fn run_batch(cfg: &Config) -> std::io::Result<()> {
         .collect();
 
     for lines in per_run_lines {
-        for line in lines {
-            writeln!(out, "{line}")?;
-        }
+        out.write_all(lines.as_bytes())?;
     }
 
     out.flush()

@@ -6,6 +6,7 @@ shared-target
 # WASM
 pkg
 *.wasm
+!www/*.module.wasm
 
 # Build output
 dist

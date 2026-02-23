@@ -141,7 +141,7 @@ def main():
         ax2,
         df,
         "prey_avg_fitness",
-        title="Prey Fitness Percentile Bands",
+        title="Prey Fitness Percentile Bands (Deciles)",
         cmap_name="tab10",
     )
 

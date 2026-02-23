@@ -1,10 +1,10 @@
 # Shorelark Genetic Algorithm
 
-An interactive evolution sandbox: a genetic algorithm + feed-forward neural network controlling “birds” that learn to find food under configurable selection pressures. Built in Rust (WASM) with a TypeScript front-end for real-time visualization.
+An interactive evolution sandbox: a genetic algorithm + feed-forward neural network controlling “birds” that learn to find food under configurable selection pressures. Built in Rust (WASM) with a JavaScript front-end for real-time visualization.
 
 ## Live Demo
 
-Try it here: [Shorelark Predator-Prey Simulation](https://isaacsalzman.com/projects/shorelark-expanded/demo/)
+Try it here: [Shorelark Predator-Prey Simulation](http://shorelark.isaacsalzman.com/)
 
 ![Shorelark Expanded demo](./docs/shorelark-demo.gif)
 
@@ -21,7 +21,7 @@ This project also aims to mathematically quantify the improvement rate of the po
 cd libs/simulation-wasm
 wasm-pack build --target bundler --release
 
-# Build TypeScript code
+# Build JavaScript code
 cd ../../www
 npm install
 
@@ -60,4 +60,4 @@ This project implements a genetic algorithm in combination with a [Feed-forward 
 ## Acknowledgements
 
 This project was initially inspired by and prototyped from Patryk Wychowaniec’s “Learning to Fly” article/series:
-- Guide: <https://pwy.io/posts/learning-to-fly-pt1/>
+- <https://pwy.io/posts/learning-to-fly-pt1/>

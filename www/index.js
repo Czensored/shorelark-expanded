@@ -62,10 +62,25 @@ const predMin = document.getElementById('predMin');
 const predMax = document.getElementById('predMax');
 const predAvg = document.getElementById('predAvg');
 const historyList = document.getElementById('statsHistory');
+const aboutToggle = document.getElementById('aboutToggle');
+const aboutCard = document.getElementById('aboutCard');
 
 function formatFitness(value) {
   return Number(value).toFixed(2);
 }
+
+function setAboutOpen(isOpen) {
+  aboutCard.hidden = !isOpen;
+  aboutToggle.setAttribute('aria-expanded', String(isOpen));
+  aboutToggle.setAttribute('aria-label', isOpen ? 'Hide About section' : 'Show About section');
+  aboutToggle.title = isOpen ? 'Hide About' : 'About';
+}
+
+aboutToggle.onclick = function() {
+  setAboutOpen(aboutCard.hidden);
+};
+
+setAboutOpen(window.matchMedia('(max-width: 1200px)').matches);
 
 function updateStatsPanel(stats) {
   if (!stats) {
@@ -102,9 +117,6 @@ function updateStatsPanel(stats) {
     const item = document.createElement('li');
     item.className = 'history-entry';
 
-    const genLabel = document.createElement('span');
-    genLabel.textContent = 'Gen';
-
     const genValueCell = document.createElement('span');
     genValueCell.className = 'num';
     genValueCell.textContent = entry.generation;
@@ -117,22 +129,13 @@ function updateStatsPanel(stats) {
     predCell.className = 'history-pred num';
     predCell.textContent = entry.predAvg;
 
-    const spacer = document.createElement('span');
-    spacer.className = 'history-gap';
-
-    const deathsLabel = document.createElement('span');
-    deathsLabel.textContent = 'deaths';
-
     const deathsValue = document.createElement('span');
     deathsValue.className = 'num';
     deathsValue.textContent = entry.preyDead;
 
-    item.appendChild(genLabel);
     item.appendChild(genValueCell);
     item.appendChild(preyCell);
     item.appendChild(predCell);
-    item.appendChild(spacer);
-    item.appendChild(deathsLabel);
     item.appendChild(deathsValue);
     historyList.appendChild(item);
   }

@@ -4,6 +4,11 @@
 <head>
   <meta charset="utf-8">
   <title>Shorelark Expanded Demo</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="./favicon/favicon-96x96.png">
+  <link rel="icon" href="./favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+  <link rel="manifest" href="./favicon/site.webmanifest">
 </head>
 <style>
   :root {
@@ -14,6 +19,7 @@
     --muted: #96a3bd;
     --prey: #50aaff;
     --predator: #ff5a5a;
+    --food: #f4f7ff;
   }
 
   * {
@@ -55,8 +61,114 @@
   }
 
   #statsPanel h2 {
-    margin: 0 0 10px;
+    margin: 0;
     font-size: 18px;
+  }
+
+  .panel-title {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .about-toggle {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    min-height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .about-toggle:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .about-card {
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+    overflow: hidden;
+    max-height: 420px;
+    transition: max-height 220ms ease;
+  }
+
+  .about-card[hidden] {
+    display: block;
+    max-height: 0;
+    border-width: 0;
+    margin-bottom: 0;
+  }
+
+  .about-content {
+    padding: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .about-content p {
+    margin: 0 0 10px;
+  }
+
+  .about-list {
+    margin: 0 0 10px;
+    padding-left: 16px;
+  }
+
+  .about-list li {
+    margin: 2px 0;
+  }
+
+  .legend-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .legend-dot.prey-dot {
+    background: var(--prey);
+  }
+
+  .legend-dot.predator-dot {
+    background: var(--predator);
+  }
+
+  .legend-dot.food-dot {
+    background: var(--food);
+  }
+
+  .about-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .about-link {
+    color: var(--text);
+    font-size: 12px;
   }
 
   .generation {
@@ -97,7 +209,7 @@
   }
 
   #statsHistory {
-    margin: 8px 0 0;
+    margin: 6px 0 0;
     padding-left: 18px;
     color: var(--muted);
     font-size: 13px;
@@ -107,16 +219,17 @@
   }
 
   #statsHistory li {
-    margin: 4px 0;
+    margin: 0;
+    padding: 3px 0;
     list-style: none;
     margin-left: -18px;
   }
 
   .history-entry {
     display: grid;
-    grid-template-columns: auto auto 5.5ch 5.5ch 2.5ch auto 3ch;
+    grid-template-columns: 5ch 8ch 8ch 9ch;
     align-items: center;
-    column-gap: 3px;
+    column-gap: 10px;
     font-size: 13px;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
@@ -126,8 +239,38 @@
     text-align: right;
   }
 
-  .history-gap {
-    width: 2.5ch;
+  .history-header {
+    display: grid;
+    grid-template-columns: 5ch 8ch 8ch 9ch;
+    column-gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-header span {
+    text-align: right;
+  }
+
+  .history-header span:nth-child(1) {
+    transform: translateX(1ch);
+  }
+
+  .history-header span:nth-child(2) {
+    transform: translateX(2ch);
+  }
+
+  .history-header span:nth-child(3) {
+    transform: translateX(3ch);
+  }
+
+  .history-header span:nth-child(4) {
+    transform: translateX(5ch);
   }
 
   .history-prey {
@@ -177,7 +320,33 @@
     </div>
 
     <aside id="statsPanel">
-      <h2>Generation Stats</h2>
+      <div class="panel-title">
+        <h2>Generation Stats</h2>
+        <button id="aboutToggle" class="about-toggle" type="button" aria-expanded="false" aria-label="Toggle About section" title="About">
+          <span>About</span>
+        </button>
+      </div>
+      <section id="aboutCard" class="about-card" hidden>
+        <div class="about-content">
+          <p>
+            Shorelark Expanded is an interactive predator-prey simulation where neural-network controlled agents evolve
+            with a genetic algorithm in real time.
+          </p>
+          <ul class="about-list">
+            <li>Press <strong>Run</strong> to fast-forward multiple generations.</li>
+            <li>Track fitness and deaths in the live stats panel.</li>
+            <li>Use the canvas to watch adaptation and collapse dynamics.</li>
+          </ul>
+          <div class="legend-row" aria-label="Simulation legend">
+            <span class="legend-item"><span class="legend-dot prey-dot"></span>Prey</span>
+            <span class="legend-item"><span class="legend-dot predator-dot"></span>Predators</span>
+            <span class="legend-item"><span class="legend-dot food-dot"></span>Food</span>
+          </div>
+          <div class="about-links">
+            <a class="about-link" href="https://github.com/Czensored/shorelark-expanded" target="_blank" rel="noreferrer">Source Code</a>
+          </div>
+        </div>
+      </section>
       <div class="generation"><span class="label">Generation:</span><span id="genValue">-</span></div>
 
       <section class="species">
@@ -196,7 +365,13 @@
       </section>
 
       <div class="history-section">
-        <div class="label">Recent generations</div>
+        <div class="label">Past generations</div>
+        <div class="history-header" aria-hidden="true">
+          <span>Gen</span>
+          <span>Prey Avg</span>
+          <span>Pred Avg</span>
+          <span>Dead Prey</span>
+        </div>
         <ul id="statsHistory"></ul>
       </div>
 

@@ -27,6 +27,7 @@ out
 # Python
 .venv
 *.pyc
+scripts/__pycache__/
 
 # OS/system
 .DS_Store

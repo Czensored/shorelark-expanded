@@ -52,6 +52,8 @@ CanvasRenderingContext2D.prototype.drawCircle =
 
 const simulation = new sim.Simulation();
 const statsHistory = [];
+const LIVE_STATS_INTERVAL_MS = 1000;
+let lastLiveStatsAtMs = -LIVE_STATS_INTERVAL_MS;
 
 const genValue = document.getElementById('genValue');
 const preyMin = document.getElementById('preyMin');
@@ -82,7 +84,7 @@ aboutToggle.onclick = function() {
 
 setAboutOpen(window.matchMedia('(max-width: 1200px)').matches);
 
-function updateStatsPanel(stats) {
+function updateStatsPanel(stats, { recordHistory = true } = {}) {
   if (!stats) {
     return;
   }
@@ -105,39 +107,41 @@ function updateStatsPanel(stats) {
   predMax.textContent = predatorMaxFitness;
   predAvg.textContent = predatorAvgFitness;
 
-  statsHistory.unshift({
-    generation,
-    preyAvg: preyAvgFitness,
-    predAvg: predatorAvgFitness,
-    preyDead: preyDeaths,
-  });
+  if (recordHistory) {
+    statsHistory.unshift({
+      generation,
+      preyAvg: preyAvgFitness,
+      predAvg: predatorAvgFitness,
+      preyDead: preyDeaths,
+    });
 
-  historyList.textContent = '';
-  for (const entry of statsHistory) {
-    const item = document.createElement('li');
-    item.className = 'history-entry';
+    historyList.textContent = '';
+    for (const entry of statsHistory) {
+      const item = document.createElement('li');
+      item.className = 'history-entry';
 
-    const genValueCell = document.createElement('span');
-    genValueCell.className = 'num';
-    genValueCell.textContent = entry.generation;
+      const genValueCell = document.createElement('span');
+      genValueCell.className = 'num';
+      genValueCell.textContent = entry.generation;
 
-    const preyCell = document.createElement('span');
-    preyCell.className = 'history-prey num';
-    preyCell.textContent = entry.preyAvg;
+      const preyCell = document.createElement('span');
+      preyCell.className = 'history-prey num';
+      preyCell.textContent = entry.preyAvg;
 
-    const predCell = document.createElement('span');
-    predCell.className = 'history-pred num';
-    predCell.textContent = entry.predAvg;
+      const predCell = document.createElement('span');
+      predCell.className = 'history-pred num';
+      predCell.textContent = entry.predAvg;
 
-    const deathsValue = document.createElement('span');
-    deathsValue.className = 'num';
-    deathsValue.textContent = entry.preyDead;
+      const deathsValue = document.createElement('span');
+      deathsValue.className = 'num';
+      deathsValue.textContent = entry.preyDead;
 
-    item.appendChild(genValueCell);
-    item.appendChild(preyCell);
-    item.appendChild(predCell);
-    item.appendChild(deathsValue);
-    historyList.appendChild(item);
+      item.appendChild(genValueCell);
+      item.appendChild(preyCell);
+      item.appendChild(predCell);
+      item.appendChild(deathsValue);
+      historyList.appendChild(item);
+    }
   }
 }
 
@@ -170,6 +174,12 @@ function redraw() {
   const stats = simulation.step();
   if (stats) {
     updateStatsPanel(stats);
+  } else {
+    const now = performance.now();
+    if (now - lastLiveStatsAtMs >= LIVE_STATS_INTERVAL_MS) {
+      updateStatsPanel(simulation.current_stats(), { recordHistory: false });
+      lastLiveStatsAtMs = now;
+    }
   }
 
   const world = simulation.world();
@@ -211,4 +221,5 @@ function redraw() {
   requestAnimationFrame(redraw);
 }
 
+updateStatsPanel(simulation.current_stats(), { recordHistory: false });
 redraw();

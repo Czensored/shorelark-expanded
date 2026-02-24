@@ -83,6 +83,10 @@ impl Simulation {
     pub fn fast_forward(&mut self) -> GenerationStats {
         GenerationStats::from(self.sim.fast_forward(&mut self.rng))
     }
+
+    pub fn current_stats(&self) -> GenerationStats {
+        GenerationStats::from(self.sim.current_statistics())
+    }
 }
 
 impl From<&sim::World> for World {

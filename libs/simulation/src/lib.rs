@@ -103,6 +103,44 @@ impl Simulation {
         }
     }
 
+    pub fn current_statistics(&self) -> Statistics {
+        let prey_stats = current_fitness_stats(
+            self.world
+                .animals
+                .iter()
+                .filter(|animal| animal.alive)
+                .map(|animal| 1.0 + animal.satiation as f32),
+        );
+        let predator_stats = current_fitness_stats(
+            self.world
+                .predators
+                .iter()
+                .filter(|predator| predator.alive)
+                .map(|predator| 1.0 + predator.satiation as f32),
+        );
+
+        let num_dead_prey = self
+            .world
+            .animals
+            .iter()
+            .filter(|animal| !animal.alive)
+            .count() as u32;
+        let num_dead_predators = self
+            .world
+            .predators
+            .iter()
+            .filter(|predator| !predator.alive)
+            .count() as u32;
+
+        Statistics {
+            generation: self.generation,
+            prey_ga: prey_stats,
+            predator_ga: predator_stats,
+            num_dead_prey,
+            num_dead_predators,
+        }
+    }
+
     fn process_prey_food_collisions(&mut self, rng: &mut dyn RngCore) {
         for animal in &mut self.world.animals {
             if !animal.alive {
@@ -313,6 +351,34 @@ impl Simulation {
             predator_ga: predator_stats,
             num_dead_prey,
             num_dead_predators,
+        }
+    }
+}
+
+fn current_fitness_stats(values: impl Iterator<Item = f32>) -> ga::Statistics {
+    let mut count = 0usize;
+    let mut sum = 0.0f32;
+    let mut min = f32::INFINITY;
+    let mut max = f32::NEG_INFINITY;
+
+    for value in values {
+        count += 1;
+        sum += value;
+        min = min.min(value);
+        max = max.max(value);
+    }
+
+    if count == 0 {
+        ga::Statistics {
+            min_fitness: 0.0,
+            max_fitness: 0.0,
+            avg_fitness: 0.0,
+        }
+    } else {
+        ga::Statistics {
+            min_fitness: min,
+            max_fitness: max,
+            avg_fitness: sum / count as f32,
         }
     }
 }

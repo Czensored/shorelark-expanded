@@ -311,6 +311,7 @@ impl Simulation {
                     min_fitness: 0.0,
                     max_fitness: 0.0,
                     avg_fitness: 0.0,
+                    median_fitness: 0.0,
                 },
             )
         } else {
@@ -323,6 +324,7 @@ impl Simulation {
                     min_fitness: 0.0,
                     max_fitness: 0.0,
                     avg_fitness: 0.0,
+                    median_fitness: 0.0,
                 },
             )
         } else {
@@ -356,29 +358,39 @@ impl Simulation {
 }
 
 fn current_fitness_stats(values: impl Iterator<Item = f32>) -> ga::Statistics {
-    let mut count = 0usize;
+    let mut fitnesses = Vec::new();
     let mut sum = 0.0f32;
     let mut min = f32::INFINITY;
     let mut max = f32::NEG_INFINITY;
 
     for value in values {
-        count += 1;
         sum += value;
         min = min.min(value);
         max = max.max(value);
+        fitnesses.push(value);
     }
 
-    if count == 0 {
+    if fitnesses.is_empty() {
         ga::Statistics {
             min_fitness: 0.0,
             max_fitness: 0.0,
             avg_fitness: 0.0,
+            median_fitness: 0.0,
         }
     } else {
+        fitnesses.sort_by(|a, b| a.total_cmp(b));
+        let mid = fitnesses.len() / 2;
+        let median_fitness = if fitnesses.len() % 2 == 0 {
+            (fitnesses[mid - 1] + fitnesses[mid]) / 2.0
+        } else {
+            fitnesses[mid]
+        };
+
         ga::Statistics {
             min_fitness: min,
             max_fitness: max,
-            avg_fitness: sum / count as f32,
+            avg_fitness: sum / (fitnesses.len() as f32),
+            median_fitness,
         }
     }
 }

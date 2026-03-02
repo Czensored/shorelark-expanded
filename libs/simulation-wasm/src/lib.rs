@@ -55,10 +55,12 @@ pub struct GenerationStats {
     pub prey_min_fitness: f32,
     pub prey_max_fitness: f32,
     pub prey_avg_fitness: f32,
+    pub prey_median_fitness: f32,
     pub prey_dead: u32,
     pub predator_min_fitness: f32,
     pub predator_max_fitness: f32,
     pub predator_avg_fitness: f32,
+    pub predator_median_fitness: f32,
     pub predator_dead: u32,
 }
 
@@ -149,10 +151,12 @@ impl From<sim::Statistics> for GenerationStats {
             prey_min_fitness: stats.prey_ga.min_fitness,
             prey_max_fitness: stats.prey_ga.max_fitness,
             prey_avg_fitness: stats.prey_ga.avg_fitness,
+            prey_median_fitness: stats.prey_ga.median_fitness,
             prey_dead: stats.num_dead_prey,
             predator_min_fitness: stats.predator_ga.min_fitness,
             predator_max_fitness: stats.predator_ga.max_fitness,
             predator_avg_fitness: stats.predator_ga.avg_fitness,
+            predator_median_fitness: stats.predator_ga.median_fitness,
             predator_dead: stats.num_dead_predators,
         }
     }

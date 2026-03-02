@@ -96,7 +96,7 @@ fn run_batch(cfg: &Config) -> std::io::Result<()> {
 
     writeln!(
         out,
-        "run,generation,prey_min_fitness,prey_max_fitness,prey_avg_fitness,prey_dead,predator_min_fitness,predator_max_fitness,predator_avg_fitness"
+        "run,generation,prey_min_fitness,prey_max_fitness,prey_avg_fitness,prey_median_fitness,prey_dead,predator_min_fitness,predator_max_fitness,predator_avg_fitness,predator_median_fitness"
     )?;
 
     let per_run_lines: Vec<String> = (0..cfg.runs)
@@ -111,16 +111,18 @@ fn run_batch(cfg: &Config) -> std::io::Result<()> {
                 let stats = sim.fast_forward(&mut rng);
                 writeln!(
                     lines,
-                    "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.6},{:.6}",
+                    "{},{},{:.6},{:.6},{:.6},{:.6},{},{:.6},{:.6},{:.6},{:.6}",
                     run,
                     stats.generation,
                     stats.prey_ga.min_fitness,
                     stats.prey_ga.max_fitness,
                     stats.prey_ga.avg_fitness,
+                    stats.prey_ga.median_fitness,
                     stats.num_dead_prey,
                     stats.predator_ga.min_fitness,
                     stats.predator_ga.max_fitness,
                     stats.predator_ga.avg_fitness,
+                    stats.predator_ga.median_fitness,
                 )
                 .expect("writing CSV row into String should not fail");
             }

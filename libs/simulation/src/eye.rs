@@ -38,6 +38,10 @@ impl Eye {
         self.cells
     }
 
+    pub fn with_cells(cells: usize) -> Self {
+        Self::new(FOV_RANGE, FOV_ANGLE, cells)
+    }
+
     pub fn process_vision(
         &self,
         position: na::Point2<f32>,

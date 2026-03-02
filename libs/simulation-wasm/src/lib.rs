@@ -89,6 +89,33 @@ impl Simulation {
     pub fn current_stats(&self) -> GenerationStats {
         GenerationStats::from(self.sim.current_statistics())
     }
+
+    pub fn reset(
+        &mut self,
+        prey: u32,
+        pred: u32,
+        foods: u32,
+        prey_n: u32,
+        pred_n: u32,
+        prey_p: u32,
+        pred_p: u32,
+        prey_speed_mul: f32,
+        pred_speed_mul: f32,
+    ) -> GenerationStats {
+        let cfg = sim::SimulationConfig {
+            prey_count: prey as usize,
+            predator_count: pred as usize,
+            food_count: foods as usize,
+            prey_hidden_neurons: prey_n as usize,
+            predator_hidden_neurons: pred_n as usize,
+            prey_photoreceptors: prey_p as usize,
+            predator_photoreceptors: pred_p as usize,
+            prey_speed_multiplier: prey_speed_mul,
+            predator_speed_multiplier: pred_speed_mul,
+        };
+        self.sim.reset_with_config(&mut self.rng, cfg);
+        GenerationStats::from(self.sim.current_statistics())
+    }
 }
 
 impl From<&sim::World> for World {

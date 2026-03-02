@@ -21,10 +21,19 @@ pub struct Predator {
 
 impl Predator {
     pub fn random(rng: &mut dyn RngCore) -> Self {
-        let eye = Eye::default();
-        let brain = Brain::random(rng, eye.cells());
+        Self::random_with_config(rng, Eye::default().cells(), 9, 1.0)
+    }
 
-        Self::new(eye, brain, rng)
+    pub fn random_with_config(
+        rng: &mut dyn RngCore,
+        eye_cells: usize,
+        hidden_neurons: usize,
+        speed_multiplier: f32,
+    ) -> Self {
+        let eye = Eye::with_cells(eye_cells);
+        let brain = Brain::random(rng, eye.cells(), hidden_neurons);
+
+        Self::new(eye, brain, speed_multiplier, rng)
     }
 
     pub fn position(&self) -> na::Point2<f32> {
@@ -35,11 +44,11 @@ impl Predator {
         self.rotation
     }
 
-    fn new(eye: Eye, brain: Brain, rng: &mut dyn RngCore) -> Self {
+    fn new(eye: Eye, brain: Brain, speed_multiplier: f32, rng: &mut dyn RngCore) -> Self {
         Self {
             position: rng.r#gen(),
             rotation: rng.r#gen(),
-            speed: 0.0011,
+            speed: 0.0011 * speed_multiplier,
             eye,
             brain,
             satiation: 0,
@@ -48,11 +57,17 @@ impl Predator {
         }
     }
 
-    pub(crate) fn from_chromosome(chromosome: ga::Chromosome, rng: &mut dyn RngCore) -> Self {
-        let eye = Eye::default();
-        let brain = Brain::from_chromosome(chromosome, eye.cells());
+    pub(crate) fn from_chromosome(
+        chromosome: ga::Chromosome,
+        eye_cells: usize,
+        hidden_neurons: usize,
+        speed_multiplier: f32,
+        rng: &mut dyn RngCore,
+    ) -> Self {
+        let eye = Eye::with_cells(eye_cells);
+        let brain = Brain::from_chromosome(chromosome, eye.cells(), hidden_neurons);
 
-        Self::new(eye, brain, rng)
+        Self::new(eye, brain, speed_multiplier, rng)
     }
 
     pub(crate) fn as_chromosome(&self) -> ga::Chromosome {

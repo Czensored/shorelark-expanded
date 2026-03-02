@@ -13,8 +13,20 @@ impl PredatorIndividual {
         }
     }
 
-    pub fn into_predator(self, rng: &mut dyn RngCore) -> Predator {
-        Predator::from_chromosome(self.chromosome, rng)
+    pub fn into_predator(
+        self,
+        eye_cells: usize,
+        hidden_neurons: usize,
+        speed_multiplier: f32,
+        rng: &mut dyn RngCore,
+    ) -> Predator {
+        Predator::from_chromosome(
+            self.chromosome,
+            eye_cells,
+            hidden_neurons,
+            speed_multiplier,
+            rng,
+        )
     }
 }
 

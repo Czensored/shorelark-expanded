@@ -13,8 +13,20 @@ impl AnimalIndividual {
         }
     }
 
-    pub fn into_animal(self, rng: &mut dyn RngCore) -> Animal {
-        Animal::from_chromosome(self.chromosome, rng)
+    pub fn into_animal(
+        self,
+        eye_cells: usize,
+        hidden_neurons: usize,
+        speed_multiplier: f32,
+        rng: &mut dyn RngCore,
+    ) -> Animal {
+        Animal::from_chromosome(
+            self.chromosome,
+            eye_cells,
+            hidden_neurons,
+            speed_multiplier,
+            rng,
+        )
     }
 }
 

@@ -34,9 +34,59 @@ const PREDATOR_ROTATION_ACCEL: f32 = FRAC_PI_2 / 2.5;
 const PREY_PREDATOR_VISION_GAIN: f32 = 2.5;
 
 const GENERATION_LENGTH: usize = 2500;
+const DEFAULT_PREY_NEURONS: usize = 9;
+const DEFAULT_PREDATOR_NEURONS: usize = 9;
+const DEFAULT_PREY_PHOTORECEPTORS: usize = 9;
+const DEFAULT_PREDATOR_PHOTORECEPTORS: usize = 9;
+const DEFAULT_SPEED_MULTIPLIER: f32 = 1.0;
+
+#[derive(Clone, Debug)]
+pub struct SimulationConfig {
+    pub prey_count: usize,
+    pub predator_count: usize,
+    pub food_count: usize,
+    pub prey_hidden_neurons: usize,
+    pub predator_hidden_neurons: usize,
+    pub prey_photoreceptors: usize,
+    pub predator_photoreceptors: usize,
+    pub prey_speed_multiplier: f32,
+    pub predator_speed_multiplier: f32,
+}
+
+impl Default for SimulationConfig {
+    fn default() -> Self {
+        Self {
+            prey_count: PREY_COUNT,
+            predator_count: PREDATOR_COUNT,
+            food_count: FOOD_COUNT,
+            prey_hidden_neurons: DEFAULT_PREY_NEURONS,
+            predator_hidden_neurons: DEFAULT_PREDATOR_NEURONS,
+            prey_photoreceptors: DEFAULT_PREY_PHOTORECEPTORS,
+            predator_photoreceptors: DEFAULT_PREDATOR_PHOTORECEPTORS,
+            prey_speed_multiplier: DEFAULT_SPEED_MULTIPLIER,
+            predator_speed_multiplier: DEFAULT_SPEED_MULTIPLIER,
+        }
+    }
+}
+
+impl SimulationConfig {
+    fn normalized(mut self) -> Self {
+        self.prey_count = self.prey_count.max(1);
+        self.predator_count = self.predator_count.max(1);
+        self.food_count = self.food_count.max(1);
+        self.prey_hidden_neurons = self.prey_hidden_neurons.max(1);
+        self.predator_hidden_neurons = self.predator_hidden_neurons.max(1);
+        self.prey_photoreceptors = self.prey_photoreceptors.max(1);
+        self.predator_photoreceptors = self.predator_photoreceptors.max(1);
+        self.prey_speed_multiplier = self.prey_speed_multiplier.max(0.01);
+        self.predator_speed_multiplier = self.predator_speed_multiplier.max(0.01);
+        self
+    }
+}
 
 pub struct Simulation {
     world: World,
+    config: SimulationConfig,
     prey_ga: ga::GeneticAlgorithm<
         ga::RouletteWheelSelection,
         ga::UniformCrossover,
@@ -53,7 +103,12 @@ pub struct Simulation {
 
 impl Simulation {
     pub fn random(rng: &mut dyn RngCore) -> Self {
-        let world = World::random(rng);
+        Self::random_with_config(rng, SimulationConfig::default())
+    }
+
+    pub fn random_with_config(rng: &mut dyn RngCore, config: SimulationConfig) -> Self {
+        let config = config.normalized();
+        let world = Self::random_world_with_config(rng, &config);
 
         let prey_ga = ga::GeneticAlgorithm::new(
             ga::RouletteWheelSelection,
@@ -69,11 +124,49 @@ impl Simulation {
 
         Self {
             world,
+            config,
             prey_ga,
             predator_ga,
             age: 0,
             generation: 0,
         }
+    }
+
+    fn random_world_with_config(rng: &mut dyn RngCore, cfg: &SimulationConfig) -> World {
+        let animals = (0..cfg.prey_count)
+            .map(|_| {
+                Animal::random_with_config(
+                    rng,
+                    cfg.prey_photoreceptors,
+                    cfg.prey_hidden_neurons,
+                    cfg.prey_speed_multiplier,
+                )
+            })
+            .collect();
+        let predators = (0..cfg.predator_count)
+            .map(|_| {
+                Predator::random_with_config(
+                    rng,
+                    cfg.predator_photoreceptors,
+                    cfg.predator_hidden_neurons,
+                    cfg.predator_speed_multiplier,
+                )
+            })
+            .collect();
+        let foods = (0..cfg.food_count).map(|_| Food::random(rng)).collect();
+
+        World {
+            animals,
+            predators,
+            foods,
+        }
+    }
+
+    pub fn reset_with_config(&mut self, rng: &mut dyn RngCore, config: SimulationConfig) {
+        self.config = config.normalized();
+        self.world = Self::random_world_with_config(rng, &self.config);
+        self.age = 0;
+        self.generation = 0;
     }
 
     pub fn world(&self) -> &World {
@@ -211,7 +304,9 @@ impl Simulation {
             let speed = response[0].clamp(-PREY_SPEED_ACCEL, PREY_SPEED_ACCEL);
             let rotation = response[1].clamp(-PREY_ROTATION_ACCEL, PREY_ROTATION_ACCEL);
 
-            animal.speed = (animal.speed + speed).clamp(PREY_SPEED_MIN, PREY_SPEED_MAX);
+            let prey_speed_min = PREY_SPEED_MIN * self.config.prey_speed_multiplier;
+            let prey_speed_max = PREY_SPEED_MAX * self.config.prey_speed_multiplier;
+            animal.speed = (animal.speed + speed).clamp(prey_speed_min, prey_speed_max);
             animal.rotation = na::Rotation2::new(animal.rotation.angle() + rotation);
         }
 
@@ -238,7 +333,9 @@ impl Simulation {
             let speed = response[0].clamp(-PREDATOR_SPEED_ACCEL, PREDATOR_SPEED_ACCEL);
             let rotation = response[1].clamp(-PREDATOR_ROTATION_ACCEL, PREDATOR_ROTATION_ACCEL);
 
-            predator.speed = (predator.speed + speed).clamp(PREDATOR_SPEED_MIN, PREDATOR_SPEED_MAX);
+            let predator_speed_min = PREDATOR_SPEED_MIN * self.config.predator_speed_multiplier;
+            let predator_speed_max = PREDATOR_SPEED_MAX * self.config.predator_speed_multiplier;
+            predator.speed = (predator.speed + speed).clamp(predator_speed_min, predator_speed_max);
             predator.rotation = na::Rotation2::new(predator.rotation.angle() + rotation);
         }
     }
@@ -273,7 +370,7 @@ impl Simulation {
             .animals
             .iter()
             .filter(|animal| !animal.alive)
-            .count() as u32; // assuming there is <4 billion dead animals
+            .count() as u32;
 
         let num_dead_predators = self
             .world
@@ -291,7 +388,7 @@ impl Simulation {
         let prey_population: Vec<_> = if alive_prey.is_empty() {
             Vec::new()
         } else {
-            (0..PREY_COUNT)
+            (0..self.config.prey_count)
                 .map(|i| AnimalIndividual::from_animal(alive_prey[i % alive_prey.len()]))
                 .collect()
         };
@@ -333,11 +430,25 @@ impl Simulation {
 
         self.world.animals = evolved_prey
             .into_iter()
-            .map(|individual| individual.into_animal(rng))
+            .map(|individual| {
+                individual.into_animal(
+                    self.config.prey_photoreceptors,
+                    self.config.prey_hidden_neurons,
+                    self.config.prey_speed_multiplier,
+                    rng,
+                )
+            })
             .collect();
         self.world.predators = evolved_predators
             .into_iter()
-            .map(|individual| individual.into_predator(rng))
+            .map(|individual| {
+                individual.into_predator(
+                    self.config.predator_photoreceptors,
+                    self.config.predator_hidden_neurons,
+                    self.config.predator_speed_multiplier,
+                    rng,
+                )
+            })
             .collect();
 
         for food in &mut self.world.foods {

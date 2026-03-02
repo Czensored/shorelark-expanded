@@ -6,6 +6,8 @@ An interactive evolution sandbox: a genetic algorithm + feed-forward neural netw
 
 Try it here: [Shorelark Predator-Prey Simulation](http://shorelark.isaacsalzman.com/)
 
+The UI includes a live command panel for controlling simulation state and reset parameters at runtime.
+
 ![Shorelark Expanded demo](./docs/shorelark-demo.gif)
 
 ## Problem Statement
@@ -29,12 +31,43 @@ npm install
 npm run start
 ```
 
+## Command Interface
+
+The Commands panel supports:
+
+- `p` / `pause`: toggle pause and resume.
+- `t [N]` / `train [N]`: fast-forward one or many generations.
+- `r ...` / `reset ...`: reset with optional parameters.
+
+Reset parameters:
+
+- `prey` (default `40`)
+- `pred` (default `6`)
+- `food` (default `60`)
+- `prey-n` / `prey-neurons` (default `9`)
+- `pred-n` / `pred-neurons` (default `9`)
+- `prey-p` / `prey-photoreceptors` (default `9`)
+- `pred-p` / `pred-photoreceptors` (default `9`)
+- `prey-speed` (default `1.0`)
+- `pred-speed` (default `1.0`)
+
+Examples:
+
+```bash
+p
+t 100
+r prey=60 pred=8 food=80 prey-n=12 pred-n=8 prey-p=7 pred-p=6
+r prey-speed=1.15 pred-speed=0.9
+```
+
 ## Batch Experiments (Backend)
 
 ```bash
 # Run 50 simulations for 100 generations and write CSV
 cargo run -p simulation-batch --release -- --runs 50 --gens 100 --out results.csv
 ```
+
+The batch CSV exports both average and median fitness columns (`*_avg_fitness` and `*_median_fitness`). Current plotting/analysis in this repo uses average fitness by default; median is exported for optional secondary analysis.
 
 ```bash
 # Plot trends from CSV

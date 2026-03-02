@@ -40,6 +40,12 @@
     align-items: flex-start;
   }
 
+  .side-panels {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
   .sim-wrap {
     position: relative;
   }
@@ -49,8 +55,8 @@
     border: 1px solid var(--border);
   }
 
-  #statsPanel {
-    width: 320px;
+  .panel {
+    width: 300px;
     height: 800px;
     padding: 14px;
     border: 1px solid var(--border);
@@ -60,7 +66,8 @@
     overflow: hidden;
   }
 
-  #statsPanel h2 {
+  #statsPanel h2,
+  #commandsPanel h2 {
     margin: 0;
     font-size: 18px;
   }
@@ -283,17 +290,6 @@
     font-weight: 600;
   }
 
-  .train-controls {
-    margin-top: 0;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 0 0;
-    color: var(--text);
-  }
-
   .history-section {
     display: flex;
     flex-direction: column;
@@ -301,12 +297,177 @@
     min-height: 0;
   }
 
+  .commands-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .commands-card {
+    border: 1px solid var(--border);
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .commands-card h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .action-btn {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 7px 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .cmd-details {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .cmd-details summary {
+    cursor: pointer;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    list-style: none;
+  }
+
+  .cmd-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .cmd-details summary::before {
+    content: "▸";
+    margin-right: 8px;
+    color: var(--muted);
+  }
+
+  .cmd-details[open] summary::before {
+    content: "▾";
+  }
+
+  .cmd-body {
+    border-top: 1px solid var(--border);
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .cmd-body p {
+    margin: 0 0 8px;
+  }
+
+  .cmd-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .param-row {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 6px 8px;
+  }
+
+  .param-key {
+    color: var(--text);
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+
+  .param-desc {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .cmd-example {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    margin-bottom: 6px;
+  }
+
+  .cmd-example:last-child {
+    margin-bottom: 0;
+  }
+
+  .examples-label {
+    margin-top: 16px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .command-input-wrap {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .command-input-wrap label {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  #commandInput {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
   @media (max-width: 1200px) {
     .app {
       flex-direction: column;
     }
 
-    #statsPanel {
+    .side-panels {
+      flex-direction: column;
+    }
+
+    .panel {
       width: 800px;
       height: 800px;
     }
@@ -319,68 +480,132 @@
       <canvas id="viewport" width="800" height="800"></canvas>
     </div>
 
-    <aside id="statsPanel">
-      <div class="panel-title">
-        <h2>Generation Stats</h2>
-        <button id="aboutToggle" class="about-toggle" type="button" aria-expanded="false" aria-label="Toggle About section" title="About">
-          <span>About</span>
-        </button>
-      </div>
-      <section id="aboutCard" class="about-card" hidden>
-        <div class="about-content">
-          <p>
-            Shorelark Expanded is an interactive predator-prey simulation where neural-network controlled agents evolve
-            with a genetic algorithm in real time.
-          </p>
-          <ul class="about-list">
-            <li>Press <strong>Run</strong> to fast-forward multiple generations.</li>
-            <li>Track fitness and deaths in the live stats panel.</li>
-            <li>Use the canvas to watch adaptation and emergent behaviors.</li>
-          </ul>
-          <div class="legend-row" aria-label="Simulation legend">
-            <span class="legend-item"><span class="legend-dot prey-dot"></span>Prey</span>
-            <span class="legend-item"><span class="legend-dot predator-dot"></span>Predators</span>
-            <span class="legend-item"><span class="legend-dot food-dot"></span>Food</span>
-          </div>
-          <div class="about-links">
-            <a class="about-link" href="https://github.com/Czensored/shorelark-expanded" target="_blank" rel="noreferrer">Source Code</a>
-          </div>
+    <div class="side-panels">
+      <aside id="statsPanel" class="panel">
+        <div class="panel-title">
+          <h2>Generation Stats</h2>
+          <button id="aboutToggle" class="about-toggle" type="button" aria-expanded="false" aria-label="Toggle About section" title="About">
+            <span>About</span>
+          </button>
         </div>
-      </section>
-      <div class="generation"><span class="label">Generation:</span><span id="genValue">-</span></div>
+        <section id="aboutCard" class="about-card" hidden>
+          <div class="about-content">
+            <p>
+              Shorelark Expanded is an interactive predator-prey simulation where neural-network controlled agents evolve
+              with a genetic algorithm in real time.
+            </p>
+            <div class="legend-row" aria-label="Simulation legend">
+              <span class="legend-item"><span class="legend-dot prey-dot"></span>Prey</span>
+              <span class="legend-item"><span class="legend-dot predator-dot"></span>Predators</span>
+              <span class="legend-item"><span class="legend-dot food-dot"></span>Food</span>
+            </div>
+            <div class="about-links">
+              <a class="about-link" href="https://github.com/Czensored/shorelark-expanded" target="_blank" rel="noreferrer">Source Code</a>
+            </div>
+          </div>
+        </section>
+        <div class="generation"><span class="label">Generation:</span><span id="genValue">-</span></div>
 
-      <section class="species">
-        <h3 class="prey">Prey</h3>
-        <div class="row"><span>Min fitness</span><span id="preyMin">-</span></div>
-        <div class="row"><span>Max fitness</span><span id="preyMax">-</span></div>
-        <div class="row"><span>Avg fitness</span><span id="preyAvg">-</span></div>
-        <div class="row"><span>Deaths</span><span id="preyDead">-</span></div>
-      </section>
+        <section class="species">
+          <h3 class="prey">Prey</h3>
+          <div class="row"><span>Min fitness</span><span id="preyMin">-</span></div>
+          <div class="row"><span>Max fitness</span><span id="preyMax">-</span></div>
+          <div class="row"><span>Avg fitness</span><span id="preyAvg">-</span></div>
+          <div class="row"><span>Deaths</span><span id="preyDead">-</span></div>
+        </section>
 
-      <section class="species">
-        <h3 class="predator">Predators</h3>
-        <div class="row"><span>Min fitness</span><span id="predMin">-</span></div>
-        <div class="row"><span>Max fitness</span><span id="predMax">-</span></div>
-        <div class="row"><span>Avg fitness</span><span id="predAvg">-</span></div>
-      </section>
+        <section class="species">
+          <h3 class="predator">Predators</h3>
+          <div class="row"><span>Min fitness</span><span id="predMin">-</span></div>
+          <div class="row"><span>Max fitness</span><span id="predMax">-</span></div>
+          <div class="row"><span>Avg fitness</span><span id="predAvg">-</span></div>
+        </section>
 
-      <div class="history-section">
-        <div class="label">Past generations</div>
-        <div class="history-header" aria-hidden="true">
-          <span>Gen</span>
-          <span>Prey Avg</span>
-          <span>Pred Avg</span>
-          <span>Dead Prey</span>
+        <div class="history-section">
+          <div class="label">Past generations</div>
+          <div class="history-header" aria-hidden="true">
+            <span>Gen</span>
+            <span>Prey Avg</span>
+            <span>Pred Avg</span>
+            <span>Dead Prey</span>
+          </div>
+          <ul id="statsHistory"></ul>
         </div>
-        <ul id="statsHistory"></ul>
-      </div>
 
-      <div id="controls" class="train-controls">
-        <label for="fastForwardCount">Quick Train</label>
-        <input type="number" id="fastForwardCount" value="1" min="1" style="width: 60px;">
-        <button id="train">Run</button>
-      </div>
-    </aside>
+      </aside>
+
+      <aside id="commandsPanel" class="panel">
+        <div class="panel-title">
+          <h2>Commands</h2>
+        </div>
+
+        <div class="commands-content">
+          <section class="commands-card">
+            <h4>Quick Actions</h4>
+            <div class="actions-grid">
+              <button id="cmdPauseBtn" class="action-btn" type="button">Pause</button>
+              <button id="cmdResetBtn" class="action-btn" type="button">Reset Defaults</button>
+              <button id="cmdTrain1Btn" class="action-btn" type="button">Train 1</button>
+              <button id="cmdTrain100Btn" class="action-btn" type="button">Train 100</button>
+            </div>
+          </section>
+
+          <details class="cmd-details" open>
+            <summary>Core Commands</summary>
+            <div class="cmd-body">
+              <p><span class="param-key">p</span> / <span class="param-key">pause</span> toggles pause/resume.</p>
+              <p><span class="param-key">t [N]</span> / <span class="param-key">train [N]</span> fast-forwards one or many generations.</p>
+              <div class="cmd-example">t 10</div>
+            </div>
+          </details>
+
+          <details class="cmd-details" open>
+            <summary>Reset Parameters</summary>
+            <div class="cmd-body">
+              <p>Use with reset command prefix, e.g. <span class="param-key">r prey=40</span>.</p>
+              <div class="param-grid">
+                <div class="param-row"><div class="param-key">prey=40</div><div class="param-desc">Number of prey</div></div>
+                <div class="param-row"><div class="param-key">pred=6</div><div class="param-desc">Number of predators</div></div>
+                <div class="param-row"><div class="param-key">food=60</div><div class="param-desc">Number of foods</div></div>
+                <div class="param-row"><div class="param-key">prey-n=9</div><div class="param-desc">Prey hidden neurons</div></div>
+                <div class="param-row"><div class="param-key">pred-n=9</div><div class="param-desc">Predator hidden neurons</div></div>
+                <div class="param-row"><div class="param-key">prey-p=9</div><div class="param-desc">Prey photoreceptors</div></div>
+                <div class="param-row"><div class="param-key">pred-p=9</div><div class="param-desc">Predator photoreceptors</div></div>
+                <div class="param-row"><div class="param-key">prey-speed=1.0</div><div class="param-desc">Prey speed multiplier</div></div>
+                <div class="param-row"><div class="param-key">pred-speed=1.0</div><div class="param-desc">Predator speed multiplier</div></div>
+              </div>
+              <p class="examples-label">Examples:</p>
+              <div class="cmd-example">reset prey=100 pred=10 food=100</div>
+              <div class="cmd-example">r prey=100 pred=10 food=100 prey-n=12 pred-n=8 prey-p=6 pred-p=4</div>
+              <div class="cmd-example">r prey-speed=1.15 pred-speed=0.9</div>
+            </div>
+          </details>
+
+          <details class="cmd-details">
+            <summary>Current Config</summary>
+            <div class="cmd-body">
+              <div class="param-grid">
+                <div class="param-row"><div class="param-key">prey=<span id="cfgPrey">40</span></div></div>
+                <div class="param-row"><div class="param-key">pred=<span id="cfgPred">6</span></div></div>
+                <div class="param-row"><div class="param-key">food=<span id="cfgFood">60</span></div></div>
+                <div class="param-row"><div class="param-key">prey-n=<span id="cfgPreyN">9</span></div></div>
+                <div class="param-row"><div class="param-key">pred-n=<span id="cfgPredN">9</span></div></div>
+                <div class="param-row"><div class="param-key">prey-p=<span id="cfgPreyP">9</span></div></div>
+                <div class="param-row"><div class="param-key">pred-p=<span id="cfgPredP">9</span></div></div>
+                <div class="param-row"><div class="param-key">prey-speed=<span id="cfgPreySpeed">1.0</span></div></div>
+                <div class="param-row"><div class="param-key">pred-speed=<span id="cfgPredSpeed">1.0</span></div></div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="command-input-wrap">
+          <label for="commandInput">Command input</label>
+          <input id="commandInput" type="text">
+          <div id="commandStatus" class="label"></div>
+        </div>
+      </aside>
+    </div>
   </div>
 
   <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>

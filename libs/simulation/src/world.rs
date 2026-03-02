@@ -13,10 +13,18 @@ pub struct World {
 
 impl World {
     pub fn random(rng: &mut dyn RngCore) -> Self {
-        let animals = (0..PREY_COUNT).map(|_| Animal::random(rng)).collect();
-        let predators = (0..PREDATOR_COUNT).map(|_| Predator::random(rng)).collect();
+        Self::random_with_counts(rng, PREY_COUNT, PREDATOR_COUNT, FOOD_COUNT)
+    }
 
-        let foods = (0..FOOD_COUNT).map(|_| Food::random(rng)).collect();
+    pub fn random_with_counts(
+        rng: &mut dyn RngCore,
+        prey_count: usize,
+        predator_count: usize,
+        food_count: usize,
+    ) -> Self {
+        let animals = (0..prey_count).map(|_| Animal::random(rng)).collect();
+        let predators = (0..predator_count).map(|_| Predator::random(rng)).collect();
+        let foods = (0..food_count).map(|_| Food::random(rng)).collect();
 
         // ^ Our algorithm allows for animals and foods to overlap, so
         // | it's hardly ideal - but good enough for our purposes.

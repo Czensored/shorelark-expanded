@@ -21,16 +21,17 @@ pub struct Predator {
 
 impl Predator {
     pub fn random(rng: &mut dyn RngCore) -> Self {
-        Self::random_with_config(rng, Eye::default().cells(), 9, 1.0)
+        Self::random_with_config(rng, Eye::default().cells(), std::f32::consts::PI + std::f32::consts::FRAC_PI_4, 9, 1.0)
     }
 
     pub fn random_with_config(
         rng: &mut dyn RngCore,
         eye_cells: usize,
+        fov_angle: f32,
         hidden_neurons: usize,
         speed_multiplier: f32,
     ) -> Self {
-        let eye = Eye::with_cells(eye_cells);
+        let eye = Eye::with_cells_and_fov(eye_cells, fov_angle);
         let brain = Brain::random(rng, eye.cells(), hidden_neurons);
 
         Self::new(eye, brain, speed_multiplier, rng)
@@ -60,11 +61,12 @@ impl Predator {
     pub(crate) fn from_chromosome(
         chromosome: ga::Chromosome,
         eye_cells: usize,
+        fov_angle: f32,
         hidden_neurons: usize,
         speed_multiplier: f32,
         rng: &mut dyn RngCore,
     ) -> Self {
-        let eye = Eye::with_cells(eye_cells);
+        let eye = Eye::with_cells_and_fov(eye_cells, fov_angle);
         let brain = Brain::from_chromosome(chromosome, eye.cells(), hidden_neurons);
 
         Self::new(eye, brain, speed_multiplier, rng)

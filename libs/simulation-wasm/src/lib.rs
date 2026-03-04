@@ -99,6 +99,8 @@ impl Simulation {
         pred_n: u32,
         prey_p: u32,
         pred_p: u32,
+        prey_fov: f32,
+        pred_fov: f32,
         prey_speed_mul: f32,
         pred_speed_mul: f32,
     ) -> GenerationStats {
@@ -110,6 +112,8 @@ impl Simulation {
             predator_hidden_neurons: pred_n as usize,
             prey_photoreceptors: prey_p as usize,
             predator_photoreceptors: pred_p as usize,
+            prey_fov_angle: prey_fov,
+            predator_fov_angle: pred_fov,
             prey_speed_multiplier: prey_speed_mul,
             predator_speed_multiplier: pred_speed_mul,
         };

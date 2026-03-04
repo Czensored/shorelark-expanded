@@ -58,6 +58,7 @@ let commandDraft = '';
 const LIVE_STATS_INTERVAL_MS = 1000;
 let lastLiveStatsAtMs = -LIVE_STATS_INTERVAL_MS;
 let isPaused = false;
+const DEFAULT_FOV_DEG = 225.0;
 
 const DEFAULT_COMMANDS = {
   prey: 40,
@@ -67,6 +68,8 @@ const DEFAULT_COMMANDS = {
   predNeurons: 9,
   preyPhotoreceptors: 9,
   predPhotoreceptors: 9,
+  preyFovDeg: DEFAULT_FOV_DEG,
+  predFovDeg: DEFAULT_FOV_DEG,
   preySpeedMul: 1.0,
   predSpeedMul: 1.0,
 };
@@ -96,6 +99,8 @@ const cfgPreyN = document.getElementById('cfgPreyN');
 const cfgPredN = document.getElementById('cfgPredN');
 const cfgPreyP = document.getElementById('cfgPreyP');
 const cfgPredP = document.getElementById('cfgPredP');
+const cfgPreyFov = document.getElementById('cfgPreyFov');
+const cfgPredFov = document.getElementById('cfgPredFov');
 const cfgPreySpeed = document.getElementById('cfgPreySpeed');
 const cfgPredSpeed = document.getElementById('cfgPredSpeed');
 
@@ -132,6 +137,8 @@ function renderCommandConfig() {
   if (cfgPredN) cfgPredN.textContent = String(commandConfig.predNeurons);
   if (cfgPreyP) cfgPreyP.textContent = String(commandConfig.preyPhotoreceptors);
   if (cfgPredP) cfgPredP.textContent = String(commandConfig.predPhotoreceptors);
+  if (cfgPreyFov) cfgPreyFov.textContent = Number(commandConfig.preyFovDeg).toFixed(1);
+  if (cfgPredFov) cfgPredFov.textContent = Number(commandConfig.predFovDeg).toFixed(1);
   if (cfgPreySpeed) cfgPreySpeed.textContent = Number(commandConfig.preySpeedMul).toFixed(2);
   if (cfgPredSpeed) cfgPredSpeed.textContent = Number(commandConfig.predSpeedMul).toFixed(2);
 }
@@ -150,6 +157,10 @@ function parsePositiveFloat(value) {
     return null;
   }
   return n;
+}
+
+function degToRad(deg) {
+  return (deg * Math.PI) / 180.0;
 }
 
 function applyResetParams(paramTokens) {
@@ -251,6 +262,26 @@ function applyResetParams(paramTokens) {
       continue;
     }
 
+    if (key === 'prey-fov') {
+      const parsed = parsePositiveFloat(value);
+      if (parsed === null) {
+        return `Invalid prey-fov value: ${value}`;
+      }
+      commandConfig.preyFovDeg = parsed;
+      changed = true;
+      continue;
+    }
+
+    if (key === 'pred-fov') {
+      const parsed = parsePositiveFloat(value);
+      if (parsed === null) {
+        return `Invalid pred-fov value: ${value}`;
+      }
+      commandConfig.predFovDeg = parsed;
+      changed = true;
+      continue;
+    }
+
     if (key === 'prey-speed') {
       const parsed = parsePositiveFloat(value);
       if (parsed === null) {
@@ -284,6 +315,8 @@ function applyResetParams(paramTokens) {
     commandConfig.predNeurons,
     commandConfig.preyPhotoreceptors,
     commandConfig.predPhotoreceptors,
+    degToRad(commandConfig.preyFovDeg),
+    degToRad(commandConfig.predFovDeg),
     commandConfig.preySpeedMul,
     commandConfig.predSpeedMul,
   );
@@ -324,6 +357,8 @@ function runCommand(line) {
     for (let i = 0; i < howMany; i++) {
       updateStatsPanel(simulation.fast_forward());
     }
+    updateStatsPanel(simulation.current_stats(), { recordHistory: false });
+    lastLiveStatsAtMs = performance.now();
     setCommandStatus(`Trained ${howMany} generation${howMany === 1 ? '' : 's'}.`);
     return;
   }
@@ -420,6 +455,8 @@ if (cmdResetBtn) {
     commandConfig.predNeurons = DEFAULT_COMMANDS.predNeurons;
     commandConfig.preyPhotoreceptors = DEFAULT_COMMANDS.preyPhotoreceptors;
     commandConfig.predPhotoreceptors = DEFAULT_COMMANDS.predPhotoreceptors;
+    commandConfig.preyFovDeg = DEFAULT_COMMANDS.preyFovDeg;
+    commandConfig.predFovDeg = DEFAULT_COMMANDS.predFovDeg;
     commandConfig.preySpeedMul = DEFAULT_COMMANDS.preySpeedMul;
     commandConfig.predSpeedMul = DEFAULT_COMMANDS.predSpeedMul;
     runCommand('reset');
@@ -510,6 +547,9 @@ function redraw() {
     const stats = simulation.step();
     if (stats) {
       updateStatsPanel(stats);
+      // Immediately refresh live stats for the new generation.
+      updateStatsPanel(simulation.current_stats(), { recordHistory: false });
+      lastLiveStatsAtMs = performance.now();
     } else {
       const now = performance.now();
       if (now - lastLiveStatsAtMs >= LIVE_STATS_INTERVAL_MS) {

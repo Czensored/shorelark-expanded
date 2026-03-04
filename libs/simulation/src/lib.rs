@@ -20,7 +20,7 @@ use nalgebra as na;
 use rand::{Rng, RngCore};
 
 // FRAC_PI_2 = PI / 2.0; a convenient shortcut
-use std::f32::consts::FRAC_PI_2;
+use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU};
 
 const PREY_SPEED_MIN: f32 = 0.0007;
 const PREY_SPEED_MAX: f32 = 0.0035;
@@ -39,6 +39,7 @@ const DEFAULT_PREDATOR_NEURONS: usize = 9;
 const DEFAULT_PREY_PHOTORECEPTORS: usize = 9;
 const DEFAULT_PREDATOR_PHOTORECEPTORS: usize = 9;
 const DEFAULT_SPEED_MULTIPLIER: f32 = 1.0;
+const DEFAULT_FOV_ANGLE: f32 = PI + FRAC_PI_4;
 
 #[derive(Clone, Debug)]
 pub struct SimulationConfig {
@@ -49,6 +50,8 @@ pub struct SimulationConfig {
     pub predator_hidden_neurons: usize,
     pub prey_photoreceptors: usize,
     pub predator_photoreceptors: usize,
+    pub prey_fov_angle: f32,
+    pub predator_fov_angle: f32,
     pub prey_speed_multiplier: f32,
     pub predator_speed_multiplier: f32,
 }
@@ -63,6 +66,8 @@ impl Default for SimulationConfig {
             predator_hidden_neurons: DEFAULT_PREDATOR_NEURONS,
             prey_photoreceptors: DEFAULT_PREY_PHOTORECEPTORS,
             predator_photoreceptors: DEFAULT_PREDATOR_PHOTORECEPTORS,
+            prey_fov_angle: DEFAULT_FOV_ANGLE,
+            predator_fov_angle: DEFAULT_FOV_ANGLE,
             prey_speed_multiplier: DEFAULT_SPEED_MULTIPLIER,
             predator_speed_multiplier: DEFAULT_SPEED_MULTIPLIER,
         }
@@ -78,6 +83,8 @@ impl SimulationConfig {
         self.predator_hidden_neurons = self.predator_hidden_neurons.max(1);
         self.prey_photoreceptors = self.prey_photoreceptors.max(1);
         self.predator_photoreceptors = self.predator_photoreceptors.max(1);
+        self.prey_fov_angle = self.prey_fov_angle.clamp(0.01, TAU);
+        self.predator_fov_angle = self.predator_fov_angle.clamp(0.01, TAU);
         self.prey_speed_multiplier = self.prey_speed_multiplier.max(0.01);
         self.predator_speed_multiplier = self.predator_speed_multiplier.max(0.01);
         self
@@ -138,6 +145,7 @@ impl Simulation {
                 Animal::random_with_config(
                     rng,
                     cfg.prey_photoreceptors,
+                    cfg.prey_fov_angle,
                     cfg.prey_hidden_neurons,
                     cfg.prey_speed_multiplier,
                 )
@@ -148,6 +156,7 @@ impl Simulation {
                 Predator::random_with_config(
                     rng,
                     cfg.predator_photoreceptors,
+                    cfg.predator_fov_angle,
                     cfg.predator_hidden_neurons,
                     cfg.predator_speed_multiplier,
                 )
@@ -433,6 +442,7 @@ impl Simulation {
             .map(|individual| {
                 individual.into_animal(
                     self.config.prey_photoreceptors,
+                    self.config.prey_fov_angle,
                     self.config.prey_hidden_neurons,
                     self.config.prey_speed_multiplier,
                     rng,
@@ -444,6 +454,7 @@ impl Simulation {
             .map(|individual| {
                 individual.into_predator(
                     self.config.predator_photoreceptors,
+                    self.config.predator_fov_angle,
                     self.config.predator_hidden_neurons,
                     self.config.predator_speed_multiplier,
                     rng,

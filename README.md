@@ -48,6 +48,8 @@ Reset parameters:
 - `pred-n` / `pred-neurons` (default `9`)
 - `prey-p` / `prey-photoreceptors` (default `9`)
 - `pred-p` / `pred-photoreceptors` (default `9`)
+- `prey-fov` (default `225`, degrees)
+- `pred-fov` (default `225`, degrees)
 - `prey-speed` (default `1.0`)
 - `pred-speed` (default `1.0`)
 
@@ -57,6 +59,7 @@ Examples:
 p
 t 100
 r prey=60 pred=8 food=80 prey-n=12 pred-n=8 prey-p=7 pred-p=6
+r prey-fov=200 pred-fov=240
 r prey-speed=1.15 pred-speed=0.9
 ```
 

@@ -16,6 +16,7 @@ impl AnimalIndividual {
     pub fn into_animal(
         self,
         eye_cells: usize,
+        fov_angle: f32,
         hidden_neurons: usize,
         speed_multiplier: f32,
         rng: &mut dyn RngCore,
@@ -23,6 +24,7 @@ impl AnimalIndividual {
         Animal::from_chromosome(
             self.chromosome,
             eye_cells,
+            fov_angle,
             hidden_neurons,
             speed_multiplier,
             rng,

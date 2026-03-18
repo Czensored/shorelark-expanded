@@ -58,6 +58,7 @@ let commandDraft = '';
 const LIVE_STATS_INTERVAL_MS = 1000;
 let lastLiveStatsAtMs = -LIVE_STATS_INTERVAL_MS;
 let isPaused = false;
+let extinctionOverlayDismissed = false;
 const DEFAULT_FOV_DEG = 225.0;
 
 const DEFAULT_COMMANDS = {
@@ -101,6 +102,8 @@ const cfgPreyFov = document.getElementById('cfgPreyFov');
 const cfgPredFov = document.getElementById('cfgPredFov');
 const cfgPreySpeed = document.getElementById('cfgPreySpeed');
 const cfgPredSpeed = document.getElementById('cfgPredSpeed');
+const extinctionOverlay = document.getElementById('extinctionOverlay');
+const extinctionResetBtn = document.getElementById('extinctionResetBtn');
 
 function formatFitness(value) {
   return Number(value).toFixed(2);
@@ -111,6 +114,14 @@ function setCommandStatus(text) {
     return;
   }
   commandStatus.textContent = text;
+}
+
+function setExtinctionOverlayVisible(isVisible) {
+  if (!extinctionOverlay) {
+    return;
+  }
+  extinctionOverlay.classList.toggle('is-visible', isVisible);
+  extinctionOverlay.setAttribute('aria-hidden', String(!isVisible));
 }
 
 function updatePauseButtonLabel() {
@@ -449,6 +460,23 @@ if (cmdResetBtn) {
   });
 }
 
+if (extinctionResetBtn) {
+  extinctionResetBtn.addEventListener('click', function() {
+    extinctionOverlayDismissed = false;
+    runCommand('r');
+  });
+}
+
+if (extinctionOverlay) {
+  extinctionOverlay.addEventListener('click', function(event) {
+    if (event.target !== extinctionOverlay) {
+      return;
+    }
+    extinctionOverlayDismissed = true;
+    setExtinctionOverlayVisible(false);
+  });
+}
+
 function updateStatsPanel(stats, { recordHistory = true } = {}) {
   if (!stats) {
     return;
@@ -546,6 +574,11 @@ function redraw() {
   }
 
   const world = simulation.world();
+  const preyAlive = world.animals.some((animal) => animal.alive);
+  if (preyAlive) {
+    extinctionOverlayDismissed = false;
+  }
+  setExtinctionOverlayVisible(!preyAlive && !extinctionOverlayDismissed);
 
   for (const food of world.foods) {
     ctxt.drawCircle(

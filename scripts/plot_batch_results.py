@@ -83,6 +83,98 @@ def add_decile_percentile_band(
     ax.legend(fontsize=8, loc="lower right", title="Percentile bands")
 
 
+def plot_mean_fitness(ax, df: pd.DataFrame):
+    add_mean_and_ci(
+        ax,
+        df.groupby("generation")["prey_avg_fitness"],
+        label="Prey mean fitness",
+        color="#1f77b4",
+    )
+    add_mean_and_ci(
+        ax,
+        df.groupby("generation")["predator_avg_fitness"],
+        label="Predator mean fitness",
+        color="#d62728",
+    )
+    ax.set_title("Mean Fitness vs Generation (95% CI)")
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Average fitness")
+    ax.legend()
+    ax.grid(alpha=0.25)
+
+
+def plot_improvement(ax, df: pd.DataFrame):
+    add_improvement_plot(ax, df, "prey_avg_fitness", "Prey improvement", "#1f77b4")
+    add_improvement_plot(
+        ax, df, "predator_avg_fitness", "Predator improvement", "#d62728"
+    )
+    ax.axhline(0.0, color="black", linewidth=1.0, alpha=0.5)
+    ax.set_title("Improvement per Generation (95% CI)")
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Delta avg fitness")
+    ax.legend()
+    ax.grid(alpha=0.25)
+
+
+def plot_phase(ax, fig: plt.Figure, df: pd.DataFrame):
+    phase = (
+        df.groupby("generation", as_index=False)[
+            ["prey_avg_fitness", "predator_avg_fitness"]
+        ]
+        .mean()
+    )
+    sc = ax.scatter(
+        phase["prey_avg_fitness"],
+        phase["predator_avg_fitness"],
+        c=phase["generation"],
+        cmap="viridis",
+        s=28,
+        alpha=0.95,
+    )
+    ax.plot(
+        phase["prey_avg_fitness"],
+        phase["predator_avg_fitness"],
+        color="#555555",
+        linewidth=1.4,
+        alpha=0.7,
+    )
+    start = phase.iloc[0]
+    end = phase.iloc[-1]
+    ax.scatter(
+        start["prey_avg_fitness"],
+        start["predator_avg_fitness"],
+        color="#2ca02c",
+        s=45,
+        label="Start",
+    )
+    ax.scatter(
+        end["prey_avg_fitness"],
+        end["predator_avg_fitness"],
+        color="#ff7f0e",
+        s=45,
+        label="End",
+    )
+    ax.set_title("Prey-Predator Tradeoff Phase Plot")
+    ax.set_xlabel("Prey average fitness")
+    ax.set_ylabel("Predator average fitness")
+    ax.legend(loc="best")
+    ax.grid(alpha=0.25)
+    cbar = fig.colorbar(sc, ax=ax)
+    cbar.set_label("Generation")
+
+
+def save_single_plot(output_path: Path, plot_name: str, plot_fn, df: pd.DataFrame) -> Path:
+    single_fig, single_ax = plt.subplots(figsize=(7, 5))
+    plot_fn(single_ax, single_fig, df)
+    single_fig.tight_layout()
+    single_out = output_path.with_name(
+        f"{output_path.stem}_{plot_name}{output_path.suffix}"
+    )
+    single_fig.savefig(single_out, dpi=180)
+    plt.close(single_fig)
+    return single_out
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Visualize batch genetic algorithm results."
@@ -119,23 +211,7 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     ax1, ax2, ax3, ax4 = axes.flatten()
 
-    add_mean_and_ci(
-        ax1,
-        df.groupby("generation")["prey_avg_fitness"],
-        label="Prey mean fitness",
-        color="#1f77b4",
-    )
-    add_mean_and_ci(
-        ax1,
-        df.groupby("generation")["predator_avg_fitness"],
-        label="Predator mean fitness",
-        color="#d62728",
-    )
-    ax1.set_title("Mean Fitness vs Generation (95% CI)")
-    ax1.set_xlabel("Generation")
-    ax1.set_ylabel("Average fitness")
-    ax1.legend()
-    ax1.grid(alpha=0.25)
+    plot_mean_fitness(ax1, df)
 
     add_decile_percentile_band(
         ax2,
@@ -145,54 +221,32 @@ def main():
         cmap_name="tab10",
     )
 
-    add_improvement_plot(ax3, df, "prey_avg_fitness", "Prey improvement", "#1f77b4")
-    add_improvement_plot(
-        ax3, df, "predator_avg_fitness", "Predator improvement", "#d62728"
-    )
-    ax3.axhline(0.0, color="black", linewidth=1.0, alpha=0.5)
-    ax3.set_title("Improvement per Generation (95% CI)")
-    ax3.set_xlabel("Generation")
-    ax3.set_ylabel("Delta avg fitness")
-    ax3.legend()
-    ax3.grid(alpha=0.25)
-
-    phase = (
-        df.groupby("generation", as_index=False)[
-            ["prey_avg_fitness", "predator_avg_fitness"]
-        ]
-        .mean()
-    )
-    sc = ax4.scatter(
-        phase["prey_avg_fitness"],
-        phase["predator_avg_fitness"],
-        c=phase["generation"],
-        cmap="viridis",
-        s=28,
-        alpha=0.95,
-    )
-    ax4.plot(
-        phase["prey_avg_fitness"],
-        phase["predator_avg_fitness"],
-        color="#555555",
-        linewidth=1.4,
-        alpha=0.7,
-    )
-    start = phase.iloc[0]
-    end = phase.iloc[-1]
-    ax4.scatter(start["prey_avg_fitness"], start["predator_avg_fitness"], color="#2ca02c", s=45, label="Start")
-    ax4.scatter(end["prey_avg_fitness"], end["predator_avg_fitness"], color="#ff7f0e", s=45, label="End")
-    ax4.set_title("Prey-Predator Tradeoff Phase Plot")
-    ax4.set_xlabel("Prey average fitness")
-    ax4.set_ylabel("Predator average fitness")
-    ax4.legend(loc="best")
-    ax4.grid(alpha=0.25)
-    cbar = fig.colorbar(sc, ax=ax4)
-    cbar.set_label("Generation")
+    plot_improvement(ax3, df)
+    plot_phase(ax4, fig, df)
 
     fig.suptitle("Shorelark Batch Simulation Trends", fontsize=14)
     fig.tight_layout()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out, dpi=180)
+    plt.close(fig)
+
+    individual_outputs = [
+        save_single_plot(args.out, "mean_fitness", lambda ax, _fig, data: plot_mean_fitness(ax, data), df),
+        save_single_plot(
+            args.out,
+            "prey_percentile_bands",
+            lambda ax, _fig, data: add_decile_percentile_band(
+                ax,
+                data,
+                "prey_avg_fitness",
+                title="Prey Fitness Percentile Bands (Deciles)",
+                cmap_name="tab10",
+            ),
+            df,
+        ),
+        save_single_plot(args.out, "improvement", lambda ax, _fig, data: plot_improvement(ax, data), df),
+        save_single_plot(args.out, "phase_plot", plot_phase, df),
+    ]
 
     run_dieout = (df.groupby("run")["prey_dead"].max() >= args.prey_count)
     dieout_runs = int(run_dieout.sum())
@@ -200,6 +254,9 @@ def main():
     dieout_runs_pct = (100.0 * dieout_runs / total_runs) if total_runs else 0.0
 
     print(f"Wrote plot: {args.out}")
+    print("Wrote individual plots:")
+    for path in individual_outputs:
+        print(f"  - {path}")
     print(
         "Runs with at least one full prey die-out: "
         f"{dieout_runs}/{total_runs} ({dieout_runs_pct:.2f}%)"

@@ -84,8 +84,6 @@ const predMin = document.getElementById('predMin');
 const predMax = document.getElementById('predMax');
 const predAvg = document.getElementById('predAvg');
 const historyList = document.getElementById('statsHistory');
-const aboutToggle = document.getElementById('aboutToggle');
-const aboutCard = document.getElementById('aboutCard');
 const commandInput = document.getElementById('commandInput');
 const commandStatus = document.getElementById('commandStatus');
 const cmdPauseBtn = document.getElementById('cmdPauseBtn');
@@ -106,13 +104,6 @@ const cfgPredSpeed = document.getElementById('cfgPredSpeed');
 
 function formatFitness(value) {
   return Number(value).toFixed(2);
-}
-
-function setAboutOpen(isOpen) {
-  aboutCard.hidden = !isOpen;
-  aboutToggle.setAttribute('aria-expanded', String(isOpen));
-  aboutToggle.setAttribute('aria-label', isOpen ? 'Hide About section' : 'Show About section');
-  aboutToggle.title = isOpen ? 'Hide About' : 'About';
 }
 
 function setCommandStatus(text) {
@@ -376,11 +367,6 @@ function runCommand(line) {
   setCommandStatus(`Unknown command: ${cmd}`);
 }
 
-aboutToggle.onclick = function() {
-  setAboutOpen(aboutCard.hidden);
-};
-
-setAboutOpen(window.matchMedia('(max-width: 1200px)').matches);
 updatePauseButtonLabel();
 renderCommandConfig();
 

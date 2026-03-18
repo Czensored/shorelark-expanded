@@ -34,7 +34,35 @@
     font-family: "Avenir Next", "Segoe UI", sans-serif;
   }
 
+  .page-header {
+    width: 100%;
+    max-width: 1432px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .header-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .app {
+    width: 100%;
+    max-width: 1432px;
+    margin: 0 auto;
     display: flex;
     gap: 16px;
     align-items: flex-start;
@@ -80,102 +108,17 @@
     gap: 8px;
   }
 
-  .about-toggle {
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text);
-    border-radius: 999px;
+  .about-link {
+    color: #ffffff;
     font-size: 12px;
     font-weight: 600;
-    padding: 4px 10px;
-    min-height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-decoration: underline;
   }
 
-  .about-toggle:hover {
-    background: rgba(255, 255, 255, 0.14);
-  }
-
-  .about-card {
-    border: 1px solid var(--border);
-    margin-bottom: 10px;
-    overflow: hidden;
-    max-height: 420px;
-    transition: max-height 220ms ease;
-  }
-
-  .about-card[hidden] {
-    display: block;
-    max-height: 0;
-    border-width: 0;
-    margin-bottom: 0;
-  }
-
-  .about-content {
-    padding: 10px;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .about-content p {
-    margin: 0 0 10px;
-  }
-
-  .about-list {
-    margin: 0 0 10px;
-    padding-left: 16px;
-  }
-
-  .about-list li {
-    margin: 2px 0;
-  }
-
-  .legend-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  .legend-dot.prey-dot {
-    background: var(--prey);
-  }
-
-  .legend-dot.predator-dot {
-    background: var(--predator);
-  }
-
-  .legend-dot.food-dot {
-    background: var(--food);
-  }
-
-  .about-links {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .about-link {
-    color: var(--text);
-    font-size: 12px;
+  .about-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
   }
 
   .generation {
@@ -475,6 +418,14 @@
 </style>
 
 <body>
+  <header class="page-header">
+    <h1 class="page-title">Shorelark Expanded</h1>
+    <div class="header-links">
+      <a class="about-link" href="https://isaacsalzman.com" target="_blank" rel="noreferrer">Main Site</a>
+      <a class="about-link" href="https://github.com/Czensored/shorelark-expanded" target="_blank" rel="noreferrer">About + Code</a>
+    </div>
+  </header>
+
   <div class="app">
     <div class="sim-wrap">
       <canvas id="viewport" width="800" height="800"></canvas>
@@ -484,26 +435,7 @@
       <aside id="statsPanel" class="panel">
         <div class="panel-title">
           <h2>Generation Stats</h2>
-          <button id="aboutToggle" class="about-toggle" type="button" aria-expanded="false" aria-label="Toggle About section" title="About">
-            <span>About</span>
-          </button>
         </div>
-        <section id="aboutCard" class="about-card" hidden>
-          <div class="about-content">
-            <p>
-              Shorelark Expanded is an interactive predator-prey simulation where neural-network controlled agents evolve
-              with a genetic algorithm in real time.
-            </p>
-            <div class="legend-row" aria-label="Simulation legend">
-              <span class="legend-item"><span class="legend-dot prey-dot"></span>Prey</span>
-              <span class="legend-item"><span class="legend-dot predator-dot"></span>Predators</span>
-              <span class="legend-item"><span class="legend-dot food-dot"></span>Food</span>
-            </div>
-            <div class="about-links">
-              <a class="about-link" href="https://github.com/Czensored/shorelark-expanded" target="_blank" rel="noreferrer">Source Code</a>
-            </div>
-          </div>
-        </section>
         <div class="generation"><span class="label">Generation:</span><span id="genValue">-</span></div>
 
         <section class="species">

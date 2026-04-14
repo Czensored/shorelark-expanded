@@ -2,6 +2,10 @@
 
 An interactive evolution sandbox: a genetic algorithm + feed-forward neural network controlling “birds” that learn to find food under configurable selection pressures. Built in Rust (WASM) with a JavaScript front-end for real-time visualization.
 
+## Report
+
+[Research Report (PDF)](./docs/shorelark-report.pdf)
+
 ## Live Demo
 
 Try it here: [Shorelark Predator-Prey Simulation](http://shorelark.isaacsalzman.com/)
